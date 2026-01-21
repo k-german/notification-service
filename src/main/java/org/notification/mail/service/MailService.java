@@ -25,9 +25,9 @@ public class MailService {
         message.setSubject("Test message");
 
         if (operation == OperationType.CREATE) {
-            message.setText("Hello! Your account has been successfully created.");
+            message.setText("Hello! Your account has been SUCCESSFULLY CREATED.");
         } else if (operation == OperationType.DELETE) {
-            message.setText("Hello! Your account has been deleted.");
+            message.setText("Hello! Your account has been DELETED");
         }
 
         mailSender.send(message);
