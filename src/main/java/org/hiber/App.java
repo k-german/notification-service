@@ -1,4 +1,4 @@
-package ogr.hiber;
+package org.hiber;
 
 /**
  * Hello world!
