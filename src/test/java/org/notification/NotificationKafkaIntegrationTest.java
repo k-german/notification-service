@@ -1,5 +1,6 @@
 package org.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -32,7 +33,10 @@ class NotificationKafkaIntegrationTest {
     private String topic;
 
     @Autowired
-    KafkaTemplate<String, UserNotificationEvent> kafkaTemplate;
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
@@ -45,7 +49,9 @@ class NotificationKafkaIntegrationTest {
     void shouldConsumeKafkaEvent_andSendEmail() throws Exception {
         UserNotificationEvent event = new UserNotificationEvent(OperationType.CREATE, "test@mail.com");
 
-        kafkaTemplate.send(topic, event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
         greenMail.waitForIncomingEmail(1);
         MimeMessage[] messages = greenMail.getReceivedMessages();
         assertEquals(1, messages.length);
@@ -57,7 +63,9 @@ class NotificationKafkaIntegrationTest {
         UserNotificationEvent event =
                 new UserNotificationEvent(OperationType.CREATE, "test@mail.com");
 
-        kafkaTemplate.send(topic, event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
 
         greenMail.waitForIncomingEmail(1);
         MimeMessage message = greenMail.getReceivedMessages()[0];
@@ -74,7 +82,9 @@ class NotificationKafkaIntegrationTest {
         UserNotificationEvent event =
                 new UserNotificationEvent(OperationType.DELETE, "test@mail.com");
 
-        kafkaTemplate.send(topic, event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
 
         greenMail.waitForIncomingEmail(1);
         MimeMessage message = greenMail.getReceivedMessages()[0];
