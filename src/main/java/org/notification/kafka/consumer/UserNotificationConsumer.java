@@ -15,7 +15,8 @@ public class UserNotificationConsumer {
     }
 
     @KafkaListener(
-            topics = "user.notifications",
+//            topics = "user.notifications",
+            topics = "${kafka.topic.user-notifications}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(UserNotificationEvent event) {
