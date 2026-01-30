@@ -1,37 +1,42 @@
 package org.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.context.ActiveProfiles;
-import org.junit.jupiter.api.Test;
-
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.ServerSetupTest;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.notification.kafka.dto.OperationType;
 import org.notification.kafka.dto.UserNotificationEvent;
 
 import jakarta.mail.internet.MimeMessage;
 
-import jakarta.mail.internet.MimeMessage;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @EmbeddedKafka(
-        topics = "user.notifications",
+        topics = "${kafka.topic.user-notifications}",
         partitions = 1
 )
 class NotificationKafkaIntegrationTest {
 
+    @Value("${kafka.topic.user-notifications}")
+    private String topic;
+
     @Autowired
-    KafkaTemplate<String, org.notification.kafka.dto.UserNotificationEvent> kafkaTemplate;
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
@@ -44,7 +49,9 @@ class NotificationKafkaIntegrationTest {
     void shouldConsumeKafkaEvent_andSendEmail() throws Exception {
         UserNotificationEvent event = new UserNotificationEvent(OperationType.CREATE, "test@mail.com");
 
-        kafkaTemplate.send("user.notifications", event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
         greenMail.waitForIncomingEmail(1);
         MimeMessage[] messages = greenMail.getReceivedMessages();
         assertEquals(1, messages.length);
@@ -56,7 +63,9 @@ class NotificationKafkaIntegrationTest {
         UserNotificationEvent event =
                 new UserNotificationEvent(OperationType.CREATE, "test@mail.com");
 
-        kafkaTemplate.send("user.notifications", event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
 
         greenMail.waitForIncomingEmail(1);
         MimeMessage message = greenMail.getReceivedMessages()[0];
@@ -73,7 +82,9 @@ class NotificationKafkaIntegrationTest {
         UserNotificationEvent event =
                 new UserNotificationEvent(OperationType.DELETE, "test@mail.com");
 
-        kafkaTemplate.send("user.notifications", event);
+        String json = objectMapper.writeValueAsString(event);
+
+        kafkaTemplate.send(topic, json);
 
         greenMail.waitForIncomingEmail(1);
         MimeMessage message = greenMail.getReceivedMessages()[0];
