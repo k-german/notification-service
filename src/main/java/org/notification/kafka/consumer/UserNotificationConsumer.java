@@ -19,20 +19,22 @@ public class UserNotificationConsumer {
     }
 
     @KafkaListener(
-//            topics = "user.notifications",
             topics = "${kafka.topic.user-notifications}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(String message) throws Exception {
+
+        System.out.println("Received Kafka message: " + message);
+
         try {
             UserNotificationEvent event =
                     objectMapper.readValue(message, UserNotificationEvent.class);
 
             mailService.sendNotification(event.getEmail(), event.getOperation());
         } catch (MailException e) {
-            // no mail in smtp log
+            System.out.println("Mail sending failed: " + e.getMessage());
         } catch (Exception e) {
-            // error log
+            System.out.println("\"sendNotification\" failed: " + e.getMessage());
             throw e;
         }
     }
