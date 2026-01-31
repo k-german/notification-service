@@ -1,5 +1,6 @@
 package org.notification.web.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -8,6 +9,10 @@ import org.notification.web.dto.NotificationRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "Notifications",
+        description = "Отправка уведомлений"
+)
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
