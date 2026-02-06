@@ -82,6 +82,13 @@
       <scope>compile</scope>
     </dependency>
 
+    <!-- Source: https://mvnrepository.com/artifact/com.icegreen/greenmail -->
+    <dependency>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
+      <version>2.1.8</version>
+    </dependency>
+
     <!-- Source: https://mvnrepository.com/artifact/com.icegreen/greenmail-junit5 -->
     <dependency>
       <groupId>com.icegreen</groupId>
